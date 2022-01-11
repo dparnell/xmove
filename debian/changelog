@@ -1,0 +1,57 @@
+xmove (2.0beta2-8) unstable; urgency=low
+
+  * patch from Andreas Leitgeb <avl@logic.at> for move.cv. See
+    README.Debian for details.
+
+ -- Adrian Bridgett <bridgett@debian.org>  Sun, 25 Sep 2005 19:20:27 +0100
+
+xmove (2.0beta2-7) unstable; urgency=low
+
+  * great patch from Tommy Pettersson <ptp a-t lysator.liu.se> adds
+    support for Unix domain sockets (closes: #113684, #224844)
+    slightly modified patch to use normal notation for UNIX domain
+    sockets (:n rather than hostname:n)
+  * changed build-depends from xlibs-dev to libx11-dev
+  * changed manpage to agree with readme regarding 16/24 bit displays
+    (closes: #270939)
+
+ -- Adrian Bridgett <bridgett@debian.org>  Sun,  3 Apr 2005 20:50:02 +0100
+
+xmove (2.0beta2-6) unstable; urgency=low
+
+  * fix link error in libatommap (closes: #22480)  Thanks to Daniel
+    Schepler for spotting bug and providing patch
+  * misc fixes (add soname for lintian, remove a few compilation warnings)
+
+ -- Adrian Bridgett <bridgett@debian.org>  Sun, 18 Jan 2004 13:07:50 +0000
+
+xmove (2.0beta2-5) unstable; urgency=low
+
+  * use a seperate directory for xmove library (RTM) - (closes: #154047)
+
+ -- Adrian Bridgett <bridgett@debian.org>  Sun, 11 Aug 2002 15:34:52 +0100
+
+xmove (2.0beta2-4) unstable; urgency=low
+
+  * lintian fix (emacs settings in changelog)
+
+ -- Adrian Bridgett <bridgett@debian.org>  Thu, 11 Apr 2002 18:44:44 +0100
+
+xmove (2.0beta2-3) unstable; urgency=low
+
+  * update to latest policy (build-depends)
+
+ -- Adrian Bridgett <bridgett@debian.org>  Tue, 10 Apr 2001 23:14:19 +0100
+
+xmove (2.0beta2-2) unstable; urgency=low
+
+  * fix xmovectrl if xmove_DISPLAY=":n" [closes: #47545] 
+  * X Window System, not X (I have now run lintian) [closes: #47536]
+
+ -- Adrian Bridgett <bridgett@debian.org>  Mon, 18 Oct 1999 21:55:09 +0100
+
+xmove (2.0beta2-1) unstable; urgency=low
+
+  * initial release.
+
+ -- Adrian Bridgett <bridgett@debian.org>  Mon, 16 Aug 1999 20:38:10 +0100

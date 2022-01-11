@@ -18,7 +18,7 @@
 # compile it and if you have compiler complaints about the function
 # dlopen() (among many other things) then change the line to NO.
 
-#define XMOVE_USE_DLLIBS	NO
+#define XMOVE_USE_DLLIBS	YES
 
 
 # Use ATOM_MAPPING_LIBRARY_PATH if XMOVE_USE_DLLIBS is set to YES.
@@ -28,7 +28,7 @@
 # need a separate subdirectory just for xmove's libraries. This variable
 # should be set to the directory where those libraries will be placed.
 
-ATOM_MAPPING_LIBRARY_PATH=\"/home/ethan/release/xmove/lib\"
+ATOM_MAPPING_LIBRARY_PATH=\"/usr/lib/xmove/\"
 
 
 ## Standard parameters
@@ -53,7 +53,7 @@ CC = gcc
 CC = cc
 #endif
 
-DEFINES = -DNeedFunctionPrototypes=1 -DDEBUG -DATOMMAP_LIBPATH=$(ATOM_MAPPING_LIBRARY_PATH) $(DLDEFINE)
+DEFINES = -O2 -DNeedFunctionPrototypes=1 -DDEBUG -DATOMMAP_LIBPATH=$(ATOM_MAPPING_LIBRARY_PATH) $(DLDEFINE)
 
 SRCS1 = decode11.c linkl.c print11.c server.c fd.c main.c prtype.c table11.c xmove.c map.c get_image.c getsetProps.c move_window.c XMOVELib.c put_image.c move_selects.c colormaps.c display.c MoveImage.c move.c check_auth.c hash.c XMOVEImUtil.c $(DLLIBSRC)
 OBJS1 = decode11.o linkl.o print11.o server.o fd.o main.o prtype.o table11.o xmove.o map.o get_image.o getsetProps.o move_window.o XMOVELib.o put_image.o move_selects.o colormaps.o display.o MoveImage.o move.o check_auth.o hash.o XMOVEImUtil.o $(DLLIBOBJ)

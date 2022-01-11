@@ -6,10 +6,14 @@ xmove \- pseudoserver to support mobile X11 clients
 .B xmove 
 [
 .B -server 
-.I server_name:port
+.I [server_name]:port
 ] [
 .B -port 
 .I listen_port
+]
+] [
+.B -interface 
+.I listen_interface
 ]
 
 .SH DESCRIPTION
@@ -25,7 +29,7 @@ thus requiring only one per machine.
 .PP
 .I xmove
 will assume logical default values for both the
-default listening port and the default server. Take as an
+default listening port, default interface and the default server. Take as an
 example a typical machine named \fIchestnut\fP, with a standard X11 server
 named \fIchestnut:0\fP.
 .PP
@@ -40,6 +44,11 @@ The default listening port is 1. In our example, this
 would mean clients should be sent to \fIchestnut:1\fP instead of
 \fIchestnut:0\fP if you wish them to be run through 
 .I xmove.
+.PP
+The default is to listen on all interfaces of the machine,
+so local clients can use both localhost:1 and chestnut:1.
+.I xmove
+can be restricted to only listen on one specific interface.
 .PP
 .SH TYPICAL USAGE
 Assuming that the environment variable \fBDISPLAY\fP contains
@@ -95,6 +104,18 @@ where \fIlocalhost\fP is the name of the machine on which
 .I xmove
 was executed, and n is the specified port.
 The port must be a number from 1 to 9.
+.TP
+.I -interface
+Clients can only connect to
+.I xmove
+through the specified interface.
+Users must specify a \fBDISPLAY\fP of \fIname:n\fP,
+where \fIname\fP is a name of that perticular interface on the machine on which
+.I xmove
+was executed.
+Without this option,
+.I xmove
+will accept connections to all interfaces on the machine.
 
 .SH "MULTI-HEADED DISPLAYS"
 .I xmove
@@ -148,9 +169,7 @@ does not work in all environments nor with all
 programs. Although xmove does support moving clients between
 displays with different characteristics, there are limitations.
 Most notably, a client started on a 1-bit black-and-white display
-can only be moved to other 1-bit displays. Additionally, xmove
-does not support 24-bit displays, although some users have
-reported sporadic success.
+can only be moved to other 1-bit displays
 .PP
 .I xmove
 requires font compatibility between displays. Thus, if your

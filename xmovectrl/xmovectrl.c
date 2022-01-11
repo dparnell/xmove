@@ -117,7 +117,10 @@ ConnectToServer()
     (void) setsockopt(ServerFD, SOL_SOCKET, SO_USELOOPBACK,(char *) NULL, 0);
 #endif
 
-    hp = gethostbyname(XmoveDisplay);
+    if (strlen (XmoveDisplay) == 0)
+      hp = gethostbyname("localhost");
+    else
+      hp = gethostbyname(XmoveDisplay);
     if (hp == 0)
     {
 	perror("gethostbyname failed");

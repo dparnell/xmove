@@ -26,6 +26,7 @@
 
 #include <sys/types.h>         /* needed by sys/socket.h and netinet/in.h */
 #include <sys/uio.h>           /* for struct iovec, used by socket.h */
+#include <sys/un.h>
 #include <sys/socket.h>        /* for AF_INET, SOCK_STREAM, ... */
 #include <sys/ioctl.h>         /* for FIONCLEX, FIONBIO, ... */
 #if defined(SYSV) || defined(SVR4)
@@ -70,6 +71,7 @@ static int ConnectToClient P((int ConnectionSocket , unsigned long *ip_addr ));
 /*static char *OfficialName P((char *name ));*/
 static void ResizeBuffer P((Buffer *buffer, long len));
 static char *SetDefaultServer P((char *server_name));
+#define SVR4
 #ifdef SVR4
 static void SignalURG P((int signum ));
 static void SignalPIPE P((int signum ));
@@ -129,10 +131,11 @@ static long MetaClientNumber = 0;
 static int  ServerPort = 0;
 Global int  ServerScreen = 0;
 static int  ListenForClientsPort = 1;
+static char *ListenForClientsInterface = NULL;
 static char ServerHostName[255];
 static char DefaultHost[256];
 
-Global void
+Global int
 main(argc, argv)
 int     argc;
 char  **argv;
@@ -312,6 +315,15 @@ ScanArgs(int argc, char **argv)
 				ListenForClientsPort = 0;
 			debug(1,(stderr, "ListenForClientsPort=%d\n",ListenForClientsPort));
 		}
+		else if (Streq(argv[i], "-interface"))
+		{
+			if (++i < argc)
+				ListenForClientsInterface = argv[i];
+			else
+				Usage();
+			debug(1,(stderr, "ListenForClientsInterface=%s\n",
+					  ListenForClientsInterface));
+		}
 		else if (Streq(argv[i], "-debug"))
 		{
 			/*
@@ -354,8 +366,13 @@ ScanArgs(int argc, char **argv)
 			Usage();
 	}
 
-	LocalHostName = (char *)malloc(255);
-	(void) gethostname(LocalHostName, 255);
+	if (ListenForClientsInterface)
+		LocalHostName = ListenForClientsInterface;
+	else
+	{
+		LocalHostName = (char *)malloc(255);
+		(void) gethostname(LocalHostName, 255);
+	}
 
 	if (string == NULL)
 		string = getenv("DISPLAY");
@@ -426,7 +443,13 @@ int                     iport;
 	   host machine.  The host machine may have several different network
 	   addresses.  INADDR_ANY should work with all of them at once. */
 
-	sin.sin_addr.s_addr = INADDR_ANY;
+	/* But the user can have specified a single one of them with the
+	   -interface option. */
+
+	if (ListenForClientsInterface)
+		sin.sin_addr.s_addr = HostIPAddr;
+	else
+		sin.sin_addr.s_addr = INADDR_ANY;
 
 	sin.sin_port = htons (iport);
 
@@ -651,6 +674,7 @@ Usage()
 	fprintf(stderr, "Usage: xmove\n");
 	fprintf(stderr, "              [-server <server_name:port>]\n");
 	fprintf(stderr, "              [-port <listen_port>]\n");
+	fprintf(stderr, "              [-interface <listen_interface>]\n");
 	fprintf(stderr, "              [-verbose <output_level>]\n");
 	exit(1);
 }
@@ -1137,31 +1161,53 @@ Global int
 ConnectToServer(char *hostName, short portNum, unsigned long *ip_addr)
 {
     int ON = 1;
-    int ServerFD;
+    int ServerFD = -1;
+    struct sockaddr *sap;
+    socklen_t saz;
+    struct sockaddr_un  sun;
     struct sockaddr_in  sin;
     struct hostent *hp;
     
     enterprocedure("ConnectToServer");
 
-    hp = gethostbyname(hostName);
-    if (hp == NULL)
+    /* try local unix socket first if server is local */
+    if (Streq(hostName, ""))
     {
-	perror("gethostbyname failed");
-	return -1;
+	bzero((char *)&sun, sizeof(sun));
+	sun.sun_family = AF_UNIX;
+	sprintf(sun.sun_path, "/tmp/.X11-unix/X%d", portNum);
+	sap = (struct sockaddr *)&sun;
+	saz = SUN_LEN(&sun);
+	ServerFD = socket(AF_UNIX, SOCK_STREAM, 0);
+    }
+    if (ServerFD < 0)
+    {
+	hp = gethostbyname(hostName);
+	if (hp == NULL)
+	{
+	    perror("gethostbyname failed");
+	    return -1;
+	}
+
+	if (ip_addr)
+	     *ip_addr = *(unsigned long *)(hp->h_addr);
+    
+	if (*(unsigned long *)(hp->h_addr) == HostIPAddr &&
+	    portNum == ListenForClientsPort)
+	{
+	     return -1;
+	}
+    
+	/* establish a socket to the name server for this host */
+	bzero((char *)&sin, sizeof(sin));
+	sin.sin_family = AF_INET;
+	bcopy((char *)hp->h_addr, (char *)&sin.sin_addr, hp->h_length);
+	sin.sin_port = htons (portNum + XBasePort);
+	sap = (struct sockaddr *)&sin;
+	saz = sizeof(sin);
+	ServerFD = socket(AF_INET, SOCK_STREAM, 0);
     }
 
-    if (ip_addr)
-	 *ip_addr = *(unsigned long *)(hp->h_addr);
-    
-    if (*(unsigned long *)(hp->h_addr) == HostIPAddr &&
-	portNum == ListenForClientsPort)
-    {
-	 return -1;
-    }
-    
-    /* establish a socket to the name server for this host */
-    bzero((char *)&sin, sizeof(sin));
-    ServerFD = socket(AF_INET, SOCK_STREAM, 0);
     if (ServerFD < 0)
     {
 	perror("socket() to Server failed");
@@ -1179,14 +1225,10 @@ ConnectToServer(char *hostName, short portNum, unsigned long *ip_addr)
 
     debug(4,(stderr, "try to connect on %s\n", hostName));
 
-    sin.sin_family = AF_INET;
-    bcopy((char *)hp->h_addr, (char *)&sin.sin_addr, hp->h_length);
-    sin.sin_port = htons (portNum + XBasePort);
-
     /* ******************************************************** */
     /* try to connect to Server */
     
-    if (connect(ServerFD, (struct sockaddr *)&sin, sizeof(sin)) < 0)
+    if (connect(ServerFD, sap, saz) < 0)
     {
 	debug(4,(stderr, "connect returns errno of %d\n", errno));
 	close (ServerFD);
@@ -1514,7 +1556,7 @@ SetDefaultServer(char *server_name)
 
 	index = strchr(new_defaulthost, ':');
 	if (index == new_defaulthost)
-		strcpy(new_serverhostname, LocalHostName);
+		strcpy(new_serverhostname, "");  /* UNIX domain socket */
 	else if (index == NULL)
 		strcpy(new_serverhostname, new_defaulthost);
 	else {

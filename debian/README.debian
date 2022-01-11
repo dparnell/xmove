@@ -1,0 +1,24 @@
+Information regarding patch from Andreas Leitgeb
+------------------------------------------------
+
+(In his own words)
+
+If, using xmovectrl, I move away a window that is unmapped,
+(iconified, shaded or different virtual desktop), then
+it wouldn't ever show up again, because it would not be
+mapped on the new display.  I could see the window with
+xlsclients, but neither the window, nor any icon would show up.
+
+To solve this,  in  move.c  one line needs to be changed, namely
+the one where XMOVEMapWindow() is or isn't called:
+
+move.c:978
+-           if (window->mapped > 0)
+              XMOVEMapWindow(new_fd, new_seqno, xwin);
+===
++           if (window->mapped >= 0)
+              XMOVEMapWindow(new_fd, new_seqno, xwin);
+
+Consequently, previously unmapped windows will be mapped on
+their new location, but thats still better than having them
+entirely unaccessible afterwards.

@@ -45,24 +45,12 @@ typedef		int				(*IntCallback)();	/* ptr to int function */
 #define		Streq(a,b) 			(strcmp(a,b) == 0)
 #define		Strneq(a,b,n)		(strncmp(a,b,n) == 0)
 
-/* Linux doesn't define MAX/MIN automatically, so we do so manually */
 /* SunOS 5.x defines MAX/MIN in sys/sysmacros.h. SunOS 4.x defines it
  * elsewhere, but it doesn't hurt to include sysmacros.h */
 
 #ifdef __sun
 
 #include <sys/sysmacros.h>
-
-#else
-
-#ifdef linux
-#ifndef MAX
-#define		MAX(n1, n2)			(((n1) < (n2)) ? (n2) :	 (n1))
-#endif
-#ifndef MIN
-#define		MIN(n1, n2)			(((n1) > (n2)) ? (n2) :	 (n1))
-#endif
-#endif
 
 #endif
 

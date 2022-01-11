@@ -1,0 +1,13 @@
+Source: xmove
+Section: x11
+Priority: optional
+Maintainer: Adrian Bridgett <bridgett@debian.org>
+Build-Depends: xutils, debhelper, libx11-dev
+Standards-Version: 3.6.1.0
+
+Package: xmove
+Architecture: any
+Depends: ${shlibs:Depends}
+Description:  allows you to move programs between X Window System displays
+ xmove lets you change which display an X Window System program renders to
+ - this could be a different monitor or even a different machine.

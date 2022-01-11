@@ -1,0 +1,13 @@
+#Makefile to build OpenLook atom mapping library.
+#
+
+
+all:
+	gcc -c -O2 -fPIC -I.. -I/usr/X11R6/include -DXMOVE -DNeedFunctionPrototypes=1 libatommap.c
+	#ld -Bdynamic -shared -o libatommap.so.1.1 libatommap.o -L/usr/lib -L/usr/X11R6/lib -lc -lX11
+	gcc -shared -Wl,-soname,libatommap.so.1 -o libatommap.so.1.1 libatommap.o -L/usr/lib -L/usr/X11R6/lib -lc -lX11
+	rm -f libatommap.so.1
+	ln -s libatommap.so.1.1 libatommap.so.1
+
+clean: 
+	- rm -rf *.so* *.o *~ \#*

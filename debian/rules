@@ -1,0 +1,54 @@
+#!/usr/bin/make -f
+
+# This script uses debhelper by Joey Hess
+export DH_VERBOSE=1
+DEB=debian/tmp
+
+build:	build-stamp
+
+build-stamp:
+	dh_testdir
+	# build package here
+	for i in xmove xmovectrl; do \
+	  cd $$i; xmkmf;  $(MAKE); cd ..; \
+	done
+	cd xmove/lib; $(MAKE) -f Makefile.Linux
+	touch build-stamp
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp
+	for i in xmove xmovectrl; do \
+	  cd $$i; $(MAKE) -i clean; rm -f Makefile; cd ..; \
+	done
+	cd xmove/lib; $(MAKE) -f Makefile.Linux -i clean
+	dh_clean
+
+binary-indep:	build
+# is it arch or indep?
+binary-arch:	build
+	dh_testdir
+	dh_testroot
+	dh_clean
+	dh_installdirs usr/bin usr/lib
+	cp xmovectrl/xmovectrl xmove/xmove $(DEB)/usr/bin
+	cp xmove/lib/libatommap.so.1.1 $(DEB)/usr/lib
+	ln -s libatommap.so.1.1 $(DEB)/usr/lib/libatommap.so.1
+	dh_installdocs doc/* README
+#	dh_installmenu
+	dh_installmanpages
+	dh_installchangelogs xmove/changes.list
+	dh_strip
+	dh_compress
+	dh_fixperms
+#	dh_suidregister
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+#	dh_makeshlibs
+	dh_md5sums
+	dh_builddeb
+
+binary:	binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary

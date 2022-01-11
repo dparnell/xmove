@@ -975,7 +975,7 @@ static char *Move_stage5()
 	       ++(*new_seqno);
 	  }
 
-	  if (window->mapped > 0)
+	  if (window->mapped >= 0)
 	       XMOVEMapWindow(new_fd, new_seqno, xwin);
 
 	  if (window->move_info) {
