@@ -1,0 +1,137 @@
+	Thank you for joining the beta release of xmove 2.0. 2.0
+is nearly done, but there are still a couple of trouble reports
+I'd like found and fixed before I bless it.
+
+	The build procedures haven't changed from 1.2, so the
+various README files are still usable. The primary change between
+xmove 1.2 and 2.0 is the improved support for displays,
+particularly 16 and 24 bit displays.
+
+	This improved support does come with restrictions, which
+are rather complicated to explain without going deep into the
+lingo of X. Basically, the default visual and colormap on xmove's
+default server must have a compatible equivalent on each display
+to which you try to move an application. As well, if an
+application uses other visuals, they too must have a compatible
+equivalent on new displays.
+
+	If you run the command "xdpyinfo" on your display, you
+will get back a list of how it is configured. In particular, note
+the sections listed as "screen #n" and look for "default visual
+id". Match it with the visual types listed directly below.
+
+	Here's the rule of thumb: a visual that has a depth of 12
+or less is incompatible with a visual that has a depth of 16 or
+more. As well, both the StaticGray and the TrueColor classes are
+only compatible with themselves. To move an app from "a" to "b",
+they must both have compatible default visuals, and "b" must a
+visual compatible with every visual "a" has used.
+
+	And, if any of you can think of *any* way I can explain
+the above without losing half the readers, please let me know. 8)
+
+	Please send feedback to me at ethan@cs.columbia.edu. If
+things aren't working, let me know. If things are mostly working,
+let me know. And if things are completely working, let me know
+sooner.
+	-- Ethan
+
+
+xmove 1.2:
+
+
+
+	This is the second release of xmove, a pseudoserver for
+client mobility. All of the files entitled "README" discuss the
+steps to install xmove on your system. All discussion of features
+and usage are left in the doc and man subdirectories. Please make
+certain to read the README files located in each of the following
+subdirectories:
+
+	xmove
+	xmove/lib
+	xmovectrl
+
+	You should also determine whether you have the most
+recent release of xmove. The current release will be available
+for anonymous ftp from ftp.cs.columbia.edu:/pub/xmove.
+
+	As of today (November 30, 1994) we have tested xmove on
+Sun platforms, using both SunOS 4.1.x and Solaris 2.x. We have
+been told of successful builds on a wide variety of other Unix
+platforms as well. We expect that xmove should port easily to
+other Unix platforms, although it may be necessary to disable
+dynamic loading of libraries, and to change the names of include
+files. See xmove/README for details.
+
+	xmove supports all display types with the exception of
+24-bit color.
+
+	The xmove hierarchy consists of the above three
+directories which contain source code that must be compiled, a
+man directory containing man pages, and a doc directory
+containing text files which discuss operating xmove, xmove's
+features, and xmove's limitations.
+
+	The directory xmove contains the main source code for
+xmove. It contains an Imakefile which should work for most users.
+That Imakefile contains a header section which contains options
+that must be configured before xmove will compile. The result of
+a successful make will be the executable xmove, which is the
+pseudoserver. It also has a file changes.list for those
+interested in changes to the source code since xmove 1.1b.
+
+	The directory xmove/lib contains a support library
+(libatommap.c) for xmove which allows xmove to handle many of the
+properties and selections defined in the ICCCM and by OpenLook.
+Xmove's Imakefile can be configured to compile this source code
+into xmove directly, thus not requiring the library to be built.
+Although this is functionally equivalent, xmove is designed to
+extend its functionality by simply dropping additional libraries
+into a specified subdirectory. If xmove is told to load libraries
+dynamically, then the library in this directory must be made.
+
+	The directory xmovectrl contains the source code for the
+program used to issue commands to xmove (eg. move my xterm to
+machine foo). The compilation is straightforward, as the source
+consists of one .c file and two header files. A successful make
+creates the executable xmovectrl.
+
+	After building xmove, you should have two executables
+(xmove and xmovectrl), plus a library depending upon compilation
+choices. The executables should be installed in an appropriate
+directory. The library must be placed in the directory specified
+in xmove's Imakefile. Additionally, the man pages should be
+placed in the standard man path.
+
+	It is recommended that users additionally read the
+documentation located in the doc subdirectory. Although the man
+pages describe how to start xmove, an understanding of its
+features and limitations is required in order to use it
+effectively. Xmove is inherently limited by the fact that it must
+deduce an application's desires by watching the bits it transmits
+and receives, and that it must attempt to make new servers look
+identical to the application's first server. Much has been done,
+and much has yet to be done.
+
+
+	We are extemely interested in your comments (constructive
+criticism is always preferred 8). Even if you don't have much to
+say, we'd like to hear from you, just to know whether people are
+interested. If you experiment with xmove, we'd love to hear what
+applications and configurations work, and which cause trouble.
+
+	Please send all comments, bug reports (detailed, please!)
+and suggestions for future enhancements to:
+
+	ethan@cs.columbia.edu
+
+	Support for xmove development has been provided by Daniel
+Duchamp at Columbia University, by James Kempf and Dick
+Sillman at Sun Microsystems, and by Robert Bedichek at Transmeta
+Corporation.
+
+	We hope you enjoy the product!
+
+	Sincerely,
+	Ethan Solomita
